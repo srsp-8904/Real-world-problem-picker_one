@@ -19,9 +19,22 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
     "typescript": "^5"
-  }
+  },
+  "description": "This is a Next.js project",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/srsp-8904/Real-world-problem-picker_one.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/srsp-8904/Real-world-problem-picker_one/issues"
+  },
+  "homepage": "https://github.com/srsp-8904/Real-world-problem-picker_one#readme"
 }

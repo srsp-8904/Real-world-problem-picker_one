@@ -66,6 +66,54 @@ export default function Home() {
     }
   };
 
+  /* 🔥 Send domain to backend */
+  const sendDomainToBackend = async (domain: string) => {
+    try {
+      const res = await fetch("http://localhost:5000/api/generate-problems", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: domain,
+        }),
+      });
+
+      const data = await res.json();
+
+      console.log("Backend Response:", data);
+    } catch (error) {
+      console.error("Error calling backend:", error);
+    }
+  };
+
+  const domains = [
+    {
+      title: "Artificial Intelligence",
+      desc: "Work on real-world problems involving automation, intelligence, and data-driven systems.",
+    },
+    {
+      title: "Web Development",
+      desc: "Build scalable and meaningful web-based solutions for real users and problems.",
+    },
+    {
+      title: "Healthcare",
+      desc: "Explore challenges in medical systems, accessibility, and digital health solutions.",
+    },
+    {
+      title: "Education",
+      desc: "Solve problems related to learning, accessibility, and modern education systems.",
+    },
+    {
+      title: "Sustainability",
+      desc: "Focus on environmental challenges and long-term sustainable solutions.",
+    },
+    {
+      title: "Smart Cities",
+      desc: "Design solutions that improve urban life using technology and data.",
+    },
+  ];
+
   return (
     <>
       <Navbar />
@@ -101,10 +149,7 @@ export default function Home() {
       </main>
 
       {/* DOMAINS SECTION */}
-      <section
-        id="domains"
-        className="text-white px-12 md:px-24 py-32"
-      >
+      <section id="domains" className="text-white px-12 md:px-24 py-32">
         <div className="max-w-6xl">
           <h2 className="text-4xl md:text-5xl font-light leading-tight">
             Explore domains where <br />
@@ -112,42 +157,18 @@ export default function Home() {
           </h2>
 
           <p className="mt-8 text-gray-400 max-w-xl">
-            Choose the fields you’re interested in and work on solving
+            Choose the fields you're interested in and work on solving
             problems that actually exist outside classrooms and tutorials.
           </p>
 
           <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-16">
-            {[
-              {
-                title: "Artificial Intelligence",
-                desc: "Work on real-world problems involving automation, intelligence, and data-driven systems.",
-              },
-              {
-                title: "Web Development",
-                desc: "Build scalable and meaningful web-based solutions for real users and problems.",
-              },
-              {
-                title: "Healthcare",
-                desc: "Explore challenges in medical systems, accessibility, and digital health solutions.",
-              },
-              {
-                title: "Education",
-                desc: "Solve problems related to learning, accessibility, and modern education systems.",
-              },
-              {
-                title: "Sustainability",
-                desc: "Focus on environmental challenges and long-term sustainable solutions.",
-              },
-              {
-                title: "Smart Cities",
-                desc: "Design solutions that improve urban life using technology and data.",
-              },
-            ].map((domain) => (
+            {domains.map((domain) => (
               <div
                 key={domain.title}
+                onClick={() => sendDomainToBackend(domain.title)}
                 className="group cursor-pointer transition-all duration-500 ease-out hover:scale-[1.06]"
               >
-                <h3 className="text-xl font-normal group-hover:opacity-80 transition spark-hover">
+                <h3 className="text-xl font-normal group-hover:opacity-80 transition">
                   {domain.title}
                 </h3>
 

@@ -3,10 +3,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function WantToWork() {
-  /* Cursor glow – safe */
+  const router = useRouter();
+
+  const [primaryDomain, setPrimaryDomain] = useState("");
+  const [otherDomain, setOtherDomain] = useState("");
+
+  /* Cursor glow */
   useEffect(() => {
     let rafId: number | null = null;
-    let idleTimer: ReturnType<typeof setTimeout> | null = null;
 
     const onMove = (e: MouseEvent) => {
       if (rafId) return;
@@ -14,51 +18,65 @@ export default function WantToWork() {
       rafId = requestAnimationFrame(() => {
         document.documentElement.style.setProperty("--x", `${e.clientX}px`);
         document.documentElement.style.setProperty("--y", `${e.clientY}px`);
-        document.documentElement.style.setProperty("--glow-opacity", "1");
         rafId = null;
       });
-
-      if (idleTimer) clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => {
-        document.documentElement.style.setProperty("--glow-opacity", "0");
-      }, 250);
-    };
-
-    const hideGlow = () => {
-      document.documentElement.style.setProperty("--glow-opacity", "0");
     };
 
     window.addEventListener("mousemove", onMove);
-    window.addEventListener("blur", hideGlow);
 
     return () => {
       window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("blur", hideGlow);
-      if (idleTimer) clearTimeout(idleTimer);
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
 
-  /* State for "Other" */
-  const [primaryDomain, setPrimaryDomain] = useState("");
-  const [otherDomain, setOtherDomain] = useState("");
+  /* 🔥 Handle submit */
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const domain = primaryDomain === "Other" ? otherDomain : primaryDomain;
+
+  try {
+    const res = await fetch("http://localhost:5000/api/generate-problems", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: domain,
+      }),
+    });
+
+    const data = await res.json();
+
+    console.log("Backend response:", data);
+
+    // store problems
+    localStorage.setItem("problems", JSON.stringify(data));
+
+    // navigate
+    router.push("/results");
+  } catch (err) {
+    console.error("Error calling backend:", err);
+  }
+};
 
   return (
     <main className="min-h-screen text-white px-6 md:px-24 py-32 select-none flex justify-center">
       <div className="w-full max-w-3xl">
-        {/* TITLE */}
+
         <h1 className="text-6xl font-light text-center">
           What do you want to work on?
         </h1>
 
-        {/* DESCRIPTION */}
         <p className="mt-6 text-xl text-gray-300 text-center max-w-2xl mx-auto">
           Select your interests below. SolveSpace will help you discover
           real-world problems that fit your domain and skillset.
         </p>
 
-        {/* FORM */}
-        <form className="mt-20 space-y-10">
+        {/* 🔥 form handler added */}
+        <form onSubmit={handleSubmit} className="mt-20 space-y-10">
+
           {/* PRIMARY DOMAIN */}
           <div className="space-y-3">
             <label className="block text-lg text-gray-200">
@@ -69,23 +87,9 @@ export default function WantToWork() {
               required
               value={primaryDomain}
               onChange={(e) => setPrimaryDomain(e.target.value)}
-              className="
-                w-full
-                bg-black
-                text-white
-                border border-white/30
-                rounded-xl
-                px-4 py-3
-                text-base
-                focus:outline-none
-                focus:border-white/60
-                transition
-                appearance-none
-              "
+              className="w-full bg-black text-white border border-white/30 rounded-xl px-4 py-3"
             >
-              <option value="" disabled>
-                Select an option
-              </option>
+              <option value="" disabled>Select an option</option>
               <option>Web Development</option>
               <option>Artificial Intelligence / ML</option>
               <option>Healthcare</option>
@@ -98,7 +102,6 @@ export default function WantToWork() {
               <option>Other</option>
             </select>
 
-            {/* SHOW ONLY IF "OTHER" */}
             {primaryDomain === "Other" && (
               <input
                 type="text"
@@ -106,19 +109,7 @@ export default function WantToWork() {
                 value={otherDomain}
                 onChange={(e) => setOtherDomain(e.target.value)}
                 placeholder="Enter your domain"
-                className="
-                  mt-4
-                  w-full
-                  bg-black
-                  text-white
-                  border border-white/30
-                  rounded-xl
-                  px-4 py-3
-                  text-base
-                  focus:outline-none
-                  focus:border-white/60
-                  transition
-                "
+                className="mt-4 w-full bg-black text-white border border-white/30 rounded-xl px-4 py-3"
               />
             )}
           </div>
@@ -179,26 +170,16 @@ export default function WantToWork() {
             ]}
           />
 
-          {/* ACTION */}
+          {/* BUTTON */}
           <div className="pt-20 flex justify-center">
             <button
               type="submit"
-              className="
-                px-10 py-3
-                rounded-full
-                bg-white/30
-                backdrop-blur-md
-                border border-white/40
-                text-white
-                text-lg
-                font-medium
-                hover:bg-white/40
-                transition
-              "
+              className="px-10 py-3 rounded-full bg-white/30 backdrop-blur-md border border-white/40 text-white text-lg font-medium hover:bg-white/40 transition"
             >
               Discover problems
             </button>
           </div>
+
         </form>
       </div>
     </main>
@@ -225,25 +206,11 @@ function Select({
       <select
         required={required}
         defaultValue=""
-        className="
-          w-full
-          bg-black
-          text-white
-          border border-white/30
-          rounded-xl
-          px-4 py-3
-          text-base
-          focus:outline-none
-          focus:border-white/60
-          transition
-          appearance-none
-        "
+        className="w-full bg-black text-white border border-white/30 rounded-xl px-4 py-3"
       >
-        <option value="" disabled>
-          Select an option
-        </option>
+        <option value="" disabled>Select an option</option>
         {options.map((opt) => (
-          <option key={opt} value={opt} className="bg-black text-white">
+          <option key={opt} value={opt}>
             {opt}
           </option>
         ))}
